@@ -1,6 +1,4 @@
-from pip._internal.utils.misc import enum
-
-class AlgorithmType(enum):
+class AlgorithmType:
     HALF_IMAGES = 1
     QUARTER_IMAGES = 2
     HORIZONTAL = 3
@@ -8,7 +6,7 @@ class AlgorithmType(enum):
 
 
 class SearchAlgorithm:
-    def __init__(self, type: AlgorithmType, img_prop: float = 1, model_input_prop: float = 1, max_depth: int = 4):
+    def __init__(self, type: AlgorithmType, model_input_prop: float = 1, max_depth: int = 4):
         """
 
         :type max_depth: max depth of saerchimg inside picture.
@@ -17,20 +15,65 @@ class SearchAlgorithm:
         self.max_depth = max_depth
         self.model_input_prop = model_input_prop
         self.type = type
-        self.img_prop = img_prop
-
-        if img_prop > model_input_prop:
-            self.__main_y_prop = 1.
-            self.__main_x_prop = model_input_prop / img_prop
-        else:
-            self.__main_x_prop = 1.
-            self.__main_y_prop = img_prop / model_input_prop
 
         if type == AlgorithmType.HALF_IMAGES:
-            self.__no_pictures_in_depth = [ 2**i for i in range(1, max_depth+1)]
-            self.__prop_divider_func = lambda x: 2/(x + 1)
+            self.__n_pictures_in_depth = [2 ** i for i in range(max_depth + 1)]
+            self.__prop_divider_func = lambda x: 2 / (x + 1)
+
+    @staticmethod
+    def __scrap_shift(frame_prop, scrap_prop, n_scraps):
+        return (frame_prop - scrap_prop) / (n_scraps - 1)
+
+    @staticmethod
+    def __generator(x_frame_prop, y_frame_prop, n_pictures_in_depth, divider_func, max_depth):
+        yield (0, 1), (0, 1)
+
+        for depth in range(1, max_depth + 1):
+            n_pic = n_pictures_in_depth[depth]
+            if n_pic <= 1: continue
+
+            x_prop = x_frame_prop * divider_func(n_pic)
+            x_shift = SearchAlgorithm.__scrap_shift(x_frame_prop, x_prop, n_pic)
+
+            y_prop = y_frame_prop * divider_func(n_pic)
+            y_shift = SearchAlgorithm.__scrap_shift(y_frame_prop, y_prop, n_pic)
+
+            x, y = 0, 0
+            while y + y_prop < 1:
+                while x + x_prop < 1:
+                    yield (x, x + x_prop), (y, y + y_prop)
+                    x += x_shift
+
+                yield (1 - x_prop, 1), (y, y + y_prop)
+                y += y_shift
+
+            while x + x_prop < 1:
+                yield (x, x + x_prop), (1 - y_prop, 1)
+                x += x_shift
+
+            yield (1 - x_prop, 1), (1 - y_prop, 1)
+
+    def get_algorithm(self, img_prop: float):
+        if isinstance(img_prop, type(())):
+            img_prop = img_prop[0] / img_prop[1]
+
+        if img_prop < self.model_input_prop:
+            main_y_prop = 1.
+            main_x_prop = self.model_input_prop / img_prop
+        else:
+            main_x_prop = 1.
+            main_y_prop = img_prop / self.model_input_prop
+
+        return self.__generator(
+            main_x_prop,
+            main_y_prop,
+            self.__n_pictures_in_depth,
+            self.__prop_divider_func,
+            self.max_depth
+        )
+
 
 class ImageSearcher:
     def __init__(self, model, algorithm: SearchAlgorithm):
-        #TODO
+        # TODO
         pass
