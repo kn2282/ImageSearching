@@ -2,6 +2,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 import os
 import shutil
 
+
 class Ui_MainWindow(object):
     def __init__(self):
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
@@ -23,22 +24,22 @@ class Ui_MainWindow(object):
         self.photo_display_info_lineEdit = QtWidgets.QLineEdit(self.centralwidget)
         self.save_path_lineEdit = QtWidgets.QLineEdit(self.centralwidget)
         self.model_comboBox = QtWidgets.QComboBox(self.centralwidget)
-        self.n_found_lineEdit = QtWidgets.QLineEdit(self.stats_groupBox)
-        self.n_questionable_lineEdit = QtWidgets.QLineEdit(self.stats_groupBox)
-        self.n_info_lineEdit = QtWidgets.QLineEdit(self.stats_groupBox)
-        self.n_all_info_lineEdit = QtWidgets.QLineEdit(self.stats_groupBox)
-        self.n_questionable_info_lineEdit = QtWidgets.QLineEdit(self.stats_groupBox)
-        self.n_found_info_lineEdit = QtWidgets.QLineEdit(self.stats_groupBox)
+        self.stats_detected_lineEdit = QtWidgets.QLineEdit(self.stats_groupBox)
+        self.stats_questionable_lineEdit = QtWidgets.QLineEdit(self.stats_groupBox)
+        self.stats_total_lineEdit = QtWidgets.QLineEdit(self.stats_groupBox)
+        self.stats_total_info_lineEdit = QtWidgets.QLineEdit(self.stats_groupBox)
+        self.stats_questionable_info_lineEdit = QtWidgets.QLineEdit(self.stats_groupBox)
+        self.stats_detected_info_lineEdit = QtWidgets.QLineEdit(self.stats_groupBox)
         self.save_button = QtWidgets.QPushButton(self.centralwidget)
         self.start_button = QtWidgets.QPushButton(self.centralwidget)
         self.mark_with_button = QtWidgets.QPushButton(self.centralwidget)
         self.load_path_lineEdit = QtWidgets.QLineEdit(self.centralwidget)
 
-
         """ Non GUI-specific variables"""
         self.gallery_array = []
         self.curr_photo = 0
-        self.gallery_path = None
+        self.marked_with_array = []
+        self.marked_without_array = []
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -55,24 +56,24 @@ class Ui_MainWindow(object):
         self.save_button.setObjectName("save_button")
         self.stats_groupBox.setGeometry(QtCore.QRect(20, 400, 251, 251))
         self.stats_groupBox.setObjectName("stats_groupBox")
-        self.n_found_info_lineEdit.setGeometry(QtCore.QRect(10, 30, 113, 20))
-        self.n_found_info_lineEdit.setReadOnly(True)
-        self.n_found_info_lineEdit.setObjectName("n_found_info_lineEdit")
-        self.n_questionable_info_lineEdit.setGeometry(QtCore.QRect(10, 60, 113, 20))
-        self.n_questionable_info_lineEdit.setReadOnly(True)
-        self.n_questionable_info_lineEdit.setObjectName("n_questionable_info_lineEdit")
-        self.n_all_info_lineEdit.setGeometry(QtCore.QRect(10, 90, 113, 20))
-        self.n_all_info_lineEdit.setReadOnly(True)
-        self.n_all_info_lineEdit.setObjectName("n_all_info_lineEdit")
-        self.n_info_lineEdit.setGeometry(QtCore.QRect(130, 90, 113, 20))
-        self.n_info_lineEdit.setReadOnly(True)
-        self.n_info_lineEdit.setObjectName("n_info_lineEdit")
-        self.n_questionable_lineEdit.setGeometry(QtCore.QRect(130, 60, 113, 20))
-        self.n_questionable_lineEdit.setReadOnly(True)
-        self.n_questionable_lineEdit.setObjectName("n_questionable_lineEdit")
-        self.n_found_lineEdit.setGeometry(QtCore.QRect(130, 30, 113, 20))
-        self.n_found_lineEdit.setReadOnly(True)
-        self.n_found_lineEdit.setObjectName("n_found_lineEdit")
+        self.stats_detected_info_lineEdit.setGeometry(QtCore.QRect(10, 30, 113, 20))
+        self.stats_detected_info_lineEdit.setReadOnly(True)
+        self.stats_detected_info_lineEdit.setObjectName("n_detected_info_lineEdit")
+        self.stats_questionable_info_lineEdit.setGeometry(QtCore.QRect(10, 60, 113, 20))
+        self.stats_questionable_info_lineEdit.setReadOnly(True)
+        self.stats_questionable_info_lineEdit.setObjectName("n_questionable_info_lineEdit")
+        self.stats_total_info_lineEdit.setGeometry(QtCore.QRect(10, 90, 113, 20))
+        self.stats_total_info_lineEdit.setReadOnly(True)
+        self.stats_total_info_lineEdit.setObjectName("n_all_info_lineEdit")
+        self.stats_total_lineEdit.setGeometry(QtCore.QRect(130, 90, 113, 20))
+        self.stats_total_lineEdit.setReadOnly(True)
+        self.stats_total_lineEdit.setObjectName("n_info_lineEdit")
+        self.stats_questionable_lineEdit.setGeometry(QtCore.QRect(130, 60, 113, 20))
+        self.stats_questionable_lineEdit.setReadOnly(True)
+        self.stats_questionable_lineEdit.setObjectName("n_questionable_lineEdit")
+        self.stats_detected_lineEdit.setGeometry(QtCore.QRect(130, 30, 113, 20))
+        self.stats_detected_lineEdit.setReadOnly(True)
+        self.stats_detected_lineEdit.setObjectName("n_detected_lineEdit")
         self.model_comboBox.setGeometry(QtCore.QRect(20, 110, 261, 21))
         self.model_comboBox.setObjectName("model_comboBox")
         self.model_comboBox.addItem("")
@@ -135,12 +136,12 @@ class Ui_MainWindow(object):
         self.start_button.setText(_translate("MainWindow", "Start"))
         self.save_button.setText(_translate("MainWindow", "Zapisz"))
         self.stats_groupBox.setTitle(_translate("MainWindow", "Statystyki zdjęć"))
-        self.n_found_info_lineEdit.setText(_translate("MainWindow", "Liczba znalezionych:"))
-        self.n_questionable_info_lineEdit.setText(_translate("MainWindow", "Liczba wątpliwych:"))
-        self.n_all_info_lineEdit.setText(_translate("MainWindow", "Liczba wszystkich:"))
-        self.n_info_lineEdit.setText(_translate("MainWindow", "-"))
-        self.n_questionable_lineEdit.setText(_translate("MainWindow", "-"))
-        self.n_found_lineEdit.setText(_translate("MainWindow", "-"))
+        self.stats_detected_info_lineEdit.setText(_translate("MainWindow", "Liczba znalezionych:"))
+        self.stats_questionable_info_lineEdit.setText(_translate("MainWindow", "Liczba wątpliwych:"))
+        self.stats_total_info_lineEdit.setText(_translate("MainWindow", "Liczba wszystkich:"))
+        self.stats_total_lineEdit.setText(_translate("MainWindow", "-"))
+        self.stats_questionable_lineEdit.setText(_translate("MainWindow", "-"))
+        self.stats_detected_lineEdit.setText(_translate("MainWindow", "-"))
         self.model_comboBox.setItemText(0, _translate("MainWindow", "Wybierz model"))
         self.model_comboBox.setItemText(1, _translate("MainWindow", "Twarze"))
         self.model_comboBox.setItemText(2, _translate("MainWindow", "Samochody"))
@@ -161,27 +162,42 @@ class Ui_MainWindow(object):
 
         self.next_button.clicked.connect(self._next_photo)
         self.prev_button.clicked.connect(self._prev_photo)
-        self.save_button.clicked.connect(self.save_photos_to_dir)
+        self.save_button.clicked.connect(self._save_photos_to_dir)
         self.save_path_button.clicked.connect(self._set_save_path)
         self.load_path_button.clicked.connect(self._set_load_path)
+        self.mark_with_button.clicked.connect(self._marked_with)
+        self.mark_without_button.clicked.connect(self._marked_without)
 
-    def save_photos_to_dir(self):
+    def _save_photos_to_dir(self):
         """
         Handler method for save_button.
         Saves to currently written path in "Save Path" lineEdit field.
-        :return:
         """
         save_path = self.save_path_lineEdit.text()
-        if not os.path.exists(save_path): # TODO: Photos copy only after closing GUI not right after pressing the button
+        if not os.path.exists(
+                save_path):  # TODO: Photos copy only after closing GUI not right after pressing the button
             os.makedirs(save_path)
         for photo in self.gallery_array:
             folder_path = os.path.join(save_path, os.path.basename(photo))
             shutil.copyfile(photo, folder_path)
 
+    def _set_load_path(self):
+        """
+        Method to choose starting dataset using FileDialog. Updates load_path_info_lineEdit
+        """
+        path = str(QtWidgets.QFileDialog.getExistingDirectory(self.centralwidget, 'Select Folder'))
+        self.load_path_lineEdit.setText(path)
+
+    def _set_save_path(self):
+        """
+        Method to choose writing location for selected photos using FileDialog. Updates "save_path" lineEdit
+        """
+        path = str(QtWidgets.QFileDialog.getExistingDirectory(self.centralwidget, 'Select Folder'))
+        self.save_path_lineEdit.setText(path)
+
     def _next_photo(self):
         """
         Handler method for next_button
-        :return:
         """
         if len(self.gallery_array) == 0:
             return
@@ -193,7 +209,6 @@ class Ui_MainWindow(object):
     def _prev_photo(self):
         """
         Handler method for prev_button
-        :return:
         """
         if len(self.gallery_array) == 0:
             return
@@ -206,7 +221,6 @@ class Ui_MainWindow(object):
         """
         Update photos array that gallery uses.
         :param photos: array of photo paths or directory path to folder with photos
-        :return:
         """
         if isinstance(photos, list):
             self.gallery_array = photos
@@ -222,44 +236,65 @@ class Ui_MainWindow(object):
     def get_parameter_1(self):
         """
         Getter for parameter 1
-        :return: Parameter 1 value as int
         """
         return self.param_1_lineEdit.text()
 
     def get_parameter_2(self):
         """
         Getter for parameter 2
-        :return: Parameter 2 value as int
         """
         return self.param_2_info_lineEdit.text()
 
     def get_model_type(self):
         """
         Getter for model type
-        :return: Model type as string
         """
         return self.model_comboBox.currentText()
 
-    def _set_load_path(self):
+    def get_load_path(self):
         """
-        Method to choose starting dataset using FileDialog. Updates load_path_info_lineEdit
-        :return:
+        Getter for directory path with photos to use in algorithm
         """
-        path = str(QtWidgets.QFileDialog.getExistingDirectory(self.centralwidget, 'Select Folder'))
-        self.load_path_lineEdit.setText(path)
+        return self.save_path_lineEdit.text()
 
-    def _set_save_path(self):
+    def set_stats_detected(self, number_of_detected_photos):
         """
-        Method to choose writing location for selected photos using FileDialog. Updates "save_path" lineEdit
-        :return:
+        Setter for stats_detected_lineEdit
         """
-        path = str(QtWidgets.QFileDialog.getExistingDirectory(self.centralwidget, 'Select Folder'))
-        self.save_path_lineEdit.setText(path)
+        self.stats_detected_lineEdit.setText(str(number_of_detected_photos))
 
+    def set_stats_questionable(self, number_of_questionable_photos):
+        """
+        Setter for stats_questionable_lineEdit
+        """
+        self.stats_questionable_lineEdit.setText(str(number_of_questionable_photos))
+
+    def set_stats_total(self, total_number_of_photos):
+        """
+        Setter for stats_total_lineEdit
+        """
+        self.stats_total_lineEdit.setText(str(total_number_of_photos))
+
+    def _marked_with(self):
+        """
+        Handler for mark_with_button
+        """
+        photo = self.gallery_array[self.curr_photo]
+        if photo not in self.marked_with_array:
+            self.marked_with_array.append(photo)
+
+    def _marked_without(self):
+        """
+        Handler for mark_without_button
+        """
+        photo = self.gallery_array[self.curr_photo]
+        if photo not in self.marked_without_array:
+            self.marked_without_array.append(photo)
 
 
 if __name__ == "__main__":
     import sys
+
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
