@@ -1,10 +1,23 @@
-from math import isclose
+from ModelDetector import ModelDetector
+from PIL import Image
+import json
 
 class AlgorithmType:
-    HALF_IMAGES = 1
-    QUARTER_IMAGES = 2
-    HORIZONTAL = 3
-    VERTICAL = 4
+    HALF_IMAGES = {
+        'name': 'HALF_IMAGES',
+        'n_pictures_in_depth': lambda max_depth: [2 ** i for i in range(max_depth + 1)],
+        'prop_divider_func': lambda x: 2 / (x + 1),
+        'pic_shift': 1/2
+    }
+    QUARTER_IMAGES = {
+        'name': 'QUARTER_IMAGES',
+        'n_pictures_in_depth': lambda max_depth: [2 ** i for i in range(max_depth + 1)],
+        'prop_divider_func': lambda x: 4 / (x + 3),
+        'pic_shift': 1/4
+    }
+
+
+
 
 
 class SearchAlgorithm:
@@ -18,15 +31,9 @@ class SearchAlgorithm:
         self.model_input_prop = model_input_prop
         self.type = type
 
-        if type == AlgorithmType.HALF_IMAGES:
-            self.__n_pictures_in_depth = [2 ** i for i in range(max_depth + 1)]
-            self.__prop_divider_func = lambda x: 2 / (x + 1)
-            self.__pic_shift = 1/2
-
-        if type == AlgorithmType.QUARTER_IMAGES:
-            self.__n_pictures_in_depth = [2 ** i for i in range(max_depth + 1)]
-            self.__prop_divider_func = lambda x: 4 / (x + 3)
-            self.__pic_shift = 1/4
+        self.__n_pictures_in_depth = type['n_pictures_in_depth'](max_depth)
+        self.__prop_divider_func = type['prop_divider_func']
+        self.__pic_shift = type['pic_shift']
 
     @staticmethod
     def __generator(x_frame_prop, y_frame_prop, n_pictures_in_depth, divider_func, pic_shift, max_depth):
@@ -54,7 +61,11 @@ class SearchAlgorithm:
             yield (1 - x_prop, 1), (1 - y_prop, 1)
 
     def get_algorithm(self, img_prop: float):
-        if isinstance(img_prop, type(())):
+        """
+
+        :type img_prop: proportions x to y (width to height)
+        """
+        if isinstance(img_prop, (type(()), type([]))):
             img_prop = img_prop[0] / img_prop[1]
 
         if img_prop > self.model_input_prop:
@@ -75,6 +86,76 @@ class SearchAlgorithm:
 
 
 class ImageSearcher:
-    def __init__(self, model, algorithm: SearchAlgorithm):
-        # TODO
-        pass
+    def __init__(self, model: ModelDetector, algorithm: SearchAlgorithm, confidence_level: float, model_name:''):
+        self._model = model
+        self._algorithm = algorithm
+        self._confidence_level = confidence_level
+        self.model_name = model_name
+
+    def searchImage(self, path, return_place: bool=False, search_all:bool=False):
+        im: Image.Image = Image.open(path)
+        im_size = im.size
+        print(type(im))
+        print(type(im_size))
+        found = []
+        for xs, ys in self._algorithm.get_algorithm(im_size):
+            im_resized = im.crop((int(im_size[0]*xs[0]), int(im_size[1]*ys[0]), int(im_size[1]*ys[1]), int(im_size[0]*xs[1])))
+            if self._model.predict(im_resized) > self._confidence_level:
+                if search_all:
+                    found.append((xs, ys))
+                elif return_place:
+                    return [(xs, ys)]
+                else:
+                    return True
+
+        if search_all or return_place:
+            return found
+        else:
+            return False
+
+    pass
+
+    def save(self):
+        parameters_dict = dict()
+        parameters_dict["model_name"] = self.model_name
+        parameters_dict["algorithm_type"] = self._algorithm.type['name']
+        parameters_dict["max_depth"] = self._algorithm.max_depth
+        parameters_dict["confidence_level"] = self._confidence_level
+        save_path = f"keras_models/{self.model_name}_model"
+        parameters_dict["model_path"] = save_path
+        parameters_dict["img_size"] = self._model._img_size
+        self._model.save(save_path)
+        with open(f"models/{self.model_name}_parameters.json", "w") as write_file:
+            json.dump(parameters_dict, write_file)
+
+    @staticmethod
+    def __name_to_type(name: ''):
+        if name == AlgorithmType.HALF_IMAGES['name']:
+            return AlgorithmType.HALF_IMAGES
+
+        if name == AlgorithmType.QUARTER_IMAGES['name']:
+            return AlgorithmType.QUARTER_IMAGES
+
+    @staticmethod
+    def load(path: ''):
+        with open(path, "r") as read_file:
+            parameters_dict = json.load(read_file)
+            model_detect: ModelDetector = ModelDetector(
+                load_model=(parameters_dict["model_path"], parameters_dict["img_size"])
+            )
+
+            search_alg = SearchAlgorithm(
+                type=ImageSearcher.__name_to_type(parameters_dict["algorithm_type"]),
+                model_input_prop=parameters_dict["img_size"][0] / parameters_dict["img_size"][1],
+                max_depth=parameters_dict["max_depth"]
+            )
+
+            return ImageSearcher(
+                model=model_detect,
+                algorithm=search_alg,
+                confidence_level=parameters_dict["confidence_level"],
+                model_name=parameters_dict["model_name"]
+            )
+
+
+

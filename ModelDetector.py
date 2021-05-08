@@ -29,33 +29,35 @@ def index_highest(table):
 
 
 class ModelDetector:
-    def __init__(self, img_size: () = (20, 20), out_number: int = 2, layer_factors=None):
-        if layer_factors is None:
-            layer_factors = [1]
-        layers = [tf.keras.layers.Flatten(input_shape=img_size)] + \
-            [tf.keras.layers.Dense(int(img_size[0] * img_size[1] * i), activation='relu') for i in layer_factors] + \
-            [tf.keras.layers.Dense(out_number, activation='sigmoid')]
+    def __init__(self, img_size: () = (20, 20), layer_factors=None, load_model=None):
+        if load_model is not None:
+            self.model = tf.keras.models.load_model(load_model[0])
+            self._img_size = load_model[1]
+        else:
+            if layer_factors is None:
+                layer_factors = [1]
+            layers = [tf.keras.layers.Flatten(input_shape=img_size)] + \
+                [tf.keras.layers.Dense(int(img_size[0] * img_size[1] * i), activation='relu') for i in layer_factors] + \
+                [tf.keras.layers.Dense(1, activation='sigmoid')]
 
-        self.model = tf.keras.Sequential(layers)
-        self.model.compile(
-            optimizer='sgd',
-            loss='binary_crossentropy',
-            metrics=['binary_accuracy']
-#            loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
-#            metrics=['accuracy']
-        )
+            self.model = tf.keras.Sequential(layers)
+            self.model.compile(
+                optimizer='sgd',
+                loss='binary_crossentropy',
+                metrics=['binary_accuracy']
+            )
+            self._img_size = img_size
+
         self._images: [] = []
         self._accuracyImages: [] = []
 
         self._labels: [] = []
         self._accuracyLabels: [] = []
-
-        self.__img_size = img_size
         pass
 
     def __load_single_image(self, image_name: "", label: int, images, labels):
         loading_image: Image.Image = Image.open(image_name)
-        images.append(image2table(loading_image, self.__img_size))
+        images.append(image2table(loading_image, self._img_size))
         labels.append(label)
 
     def __load_images(self, image_label_pairs, images, labels):
@@ -76,9 +78,14 @@ class ModelDetector:
         return test_acc
 
     def predict(self, img_name: ""):
-        im = Image.open(img_name)
-        predictions = self.model.predict([image2table(im, self.__img_size)])
-        return predictions
+        if isinstance(img_name, (type(''), type(""))):
+            im = Image.open(img_name)
+        elif isinstance(img_name, Image.Image):
+            im = img_name
+        else:
+            raise TypeError(f"invalid type {type(img_name)} : must be path to image or image")
+        predictions = self.model.predict([image2table(im, self._img_size)])
+        return predictions[0][0]
 
     def save(self, path: str):
         self.model.save(path)
