@@ -29,24 +29,17 @@ class SearchAlgorithm:
             self.__pic_shift = 1/4
 
     @staticmethod
-    def __scrap_shift(frame_prop, scrap_prop, n_scraps):
-        return (frame_prop - scrap_prop) / (n_scraps - 1)
-
-    @staticmethod
     def __generator(x_frame_prop, y_frame_prop, n_pictures_in_depth, divider_func, pic_shift, max_depth):
 
         for depth in range( max_depth + 1):
             n_pic = n_pictures_in_depth[depth]
 
             x_prop = x_frame_prop * divider_func(n_pic)
-#            x_shift = SearchAlgorithm.__scrap_shift(x_frame_prop, x_prop, n_pic)
 
             y_prop = y_frame_prop * divider_func(n_pic)
-#            y_shift = SearchAlgorithm.__scrap_shift(y_frame_prop, y_prop, n_pic)
 
             x, y = 0, 0
             while y + y_prop < 1:
-#                while (x + x_prop < 1) and not isclose(x + x_prop, 1, rel_tol=1e-07, abs_tol=0.0):
                 while x + x_prop < 1:
                     yield (x, x + x_prop), (y, y + y_prop)
                     x += x_prop * pic_shift
