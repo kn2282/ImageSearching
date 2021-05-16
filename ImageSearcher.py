@@ -11,7 +11,7 @@ class AlgorithmType:
     }
     QUARTER_IMAGES = {
         'name': 'QUARTER_IMAGES',
-        'n_pictures_in_depth': lambda max_depth: [2 ** i for i in range(max_depth + 1)],
+        'n_pictures_in_depth': lambda max_depth: [1.5 ** i for i in range(max_depth + 1)],
         'prop_divider_func': lambda x: 4 / (x + 3),
         'pic_shift': 1/4
     }
@@ -103,8 +103,6 @@ class ImageSearcher:
     def searchImage(self, path, return_place: bool=False, search_all:bool=False):
         im: Image.Image = Image.open(path)
         im_size = im.size
-        print(type(im))
-        print(type(im_size))
         found = []
         for xs, ys in self._algorithm.get_algorithm(im_size):
             im_resized = im.crop((int(im_size[0]*xs[0]), int(im_size[1]*ys[0]), int(im_size[1]*ys[1]), int(im_size[0]*xs[1])))
@@ -145,23 +143,34 @@ class ImageSearcher:
             return AlgorithmType.QUARTER_IMAGES
 
     @staticmethod
-    def load(path: ''):
+    def load(path: '', search_alg=None, max_depth=None, alg_type=None, confidence_level=None):
         with open(path, "r") as read_file:
             parameters_dict = json.load(read_file)
+
             model_detect: ModelDetector = ModelDetector(
                 load_model=(parameters_dict["model_path"], parameters_dict["img_size"])
             )
 
-            search_alg = SearchAlgorithm(
-                type=ImageSearcher.__name_to_type(parameters_dict["algorithm_type"]),
-                model_input_prop=parameters_dict["img_size"][0] / parameters_dict["img_size"][1],
-                max_depth=parameters_dict["max_depth"]
-            )
+            if max_depth is None:
+                max_depth = parameters_dict["max_depth"]
+
+            if alg_type is None:
+                alg_type = ImageSearcher.__name_to_type(parameters_dict["algorithm_type"])
+
+            if search_alg is None:
+                search_alg = SearchAlgorithm(
+                    type=alg_type,
+                    model_input_prop=parameters_dict["img_size"][0] / parameters_dict["img_size"][1],
+                    max_depth=max_depth
+                )
+
+            if confidence_level is None:
+                confidence_level = parameters_dict["confidence_level"]
 
             return ImageSearcher(
                 model=model_detect,
                 algorithm=search_alg,
-                confidence_level=parameters_dict["confidence_level"],
+                confidence_level=confidence_level,
                 model_name=parameters_dict["model_name"]
             )
 
