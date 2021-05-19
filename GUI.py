@@ -21,6 +21,7 @@ class Ui_MainWindow(object):
         self.photo_display = QtWidgets.QLabel(self.centralwidget)
         self.prev_button = QtWidgets.QPushButton(self.centralwidget)
         self.next_button = QtWidgets.QPushButton(self.centralwidget)
+        self.swap_button = QtWidgets.QPushButton(self.centralwidget)
         self.photo_display_info_lineEdit = QtWidgets.QLineEdit(self.centralwidget)
         self.save_path_lineEdit = QtWidgets.QLineEdit(self.centralwidget)
         self.model_comboBox = QtWidgets.QComboBox(self.centralwidget)
@@ -36,10 +37,14 @@ class Ui_MainWindow(object):
         self.load_path_lineEdit = QtWidgets.QLineEdit(self.centralwidget)
 
         """ Non GUI-specific variables"""
-        self.gallery_array = []
+        self.confident_photos = []
+        self.questionable_photos = []
         self.curr_photo = 0
+        self.current_photos = None
         self.marked_with_array = []
         self.marked_without_array = []
+
+
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -82,16 +87,18 @@ class Ui_MainWindow(object):
         self.model_comboBox.addItem("")
         self.save_path_lineEdit.setGeometry(QtCore.QRect(780, 610, 241, 41))
         self.save_path_lineEdit.setObjectName("save_path_lineEdit")
-        self.photo_display_info_lineEdit.setGeometry(QtCore.QRect(790, 20, 81, 20))
+        self.photo_display_info_lineEdit.setGeometry(QtCore.QRect(790, 20, 101, 20))
         self.photo_display_info_lineEdit.setReadOnly(True)
         self.photo_display_info_lineEdit.setObjectName("photo_display_info_lineEdit")
         self.next_button.setGeometry(QtCore.QRect(850, 440, 151, 41))
         self.next_button.setObjectName("next_button")
         self.prev_button.setGeometry(QtCore.QRect(690, 440, 151, 41))
         self.prev_button.setObjectName("prev_button")
+        self.swap_button.setGeometry(QtCore.QRect(600, 440, 81, 41))
+        self.swap_button.setObjectName("swap_button")
         self.photo_display.setGeometry(QtCore.QRect(590, 50, 491, 381))
         self.photo_display.setText("")
-        self.photo_display.setPixmap(QtGui.QPixmap("other/indeks.png"))  # white photo just to show something at start
+        self.photo_display.setPixmap(QtGui.QPixmap())
         self.photo_display.setScaledContents(True)
         self.photo_display.setObjectName("photo_display")
         self.mark_without_button.setGeometry(QtCore.QRect(690, 490, 151, 41))
@@ -149,6 +156,7 @@ class Ui_MainWindow(object):
         self.save_path_lineEdit.setText(_translate("MainWindow", "C:\\Users\\Ja\\Desktop\\SelectedFacesGallery"))
         self.photo_display_info_lineEdit.setText(_translate("MainWindow", "Podgląd zdjęcia"))
         self.next_button.setText(_translate("MainWindow", "Następne"))
+        self.swap_button.setText(_translate("MainWindow", "Zmień galerię"))
         self.prev_button.setText(_translate("MainWindow", "Poprzednie"))
         self.mark_without_button.setText(_translate("MainWindow", "Oznacz jako bez elementu"))
         self.load_path_info_lineEdit.setText(_translate("MainWindow", "Ścieżka do folderu ze zdjęciami:"))
@@ -167,6 +175,9 @@ class Ui_MainWindow(object):
         self.load_path_button.clicked.connect(self._set_load_path)
         self.mark_with_button.clicked.connect(self._marked_with)
         self.mark_without_button.clicked.connect(self._marked_without)
+        self.swap_button.clicked.connect(self._swap_gallery)
+        self.update_gallery_text()
+        self.update_stats()
 
     def _save_photos_to_dir(self):
         """
@@ -175,9 +186,9 @@ class Ui_MainWindow(object):
         """
         save_path = self.save_path_lineEdit.text()
         if not os.path.exists(
-                save_path):  # TODO: Photos copy only after closing GUI not right after pressing the button
+                save_path):
             os.makedirs(save_path)
-        for photo in self.gallery_array:
+        for photo in self.confident_photos:
             folder_path = os.path.join(save_path, os.path.basename(photo))
             shutil.copyfile(photo, folder_path)
 
@@ -199,39 +210,67 @@ class Ui_MainWindow(object):
         """
         Handler method for next_button
         """
-        if len(self.gallery_array) == 0:
+        if len(self.current_photos) == 0:
             return
 
-        self.curr_photo = (self.curr_photo + 1) % len(self.gallery_array)
-        photo = self.gallery_array[self.curr_photo]
+        self.curr_photo = (self.curr_photo + 1) % len(self.current_photos)
+        photo = self.current_photos[self.curr_photo]
         self.photo_display.setPixmap(QtGui.QPixmap(photo))
 
     def _prev_photo(self):
         """
         Handler method for prev_button
         """
-        if len(self.gallery_array) == 0:
+        if len(self.current_photos) == 0:
             return
 
-        self.curr_photo = (self.curr_photo - 1) % len(self.gallery_array)
-        photo = self.gallery_array[self.curr_photo]
+        self.curr_photo = (self.curr_photo - 1) % len(self.current_photos)
+        photo = self.current_photos[self.curr_photo]
         self.photo_display.setPixmap(QtGui.QPixmap(photo))
 
-    def update_photos_array(self, photos):
+    def update_gallery_text(self):
+        if self.current_photos == self.confident_photos:
+            self.photo_display_info_lineEdit.setText("Pewne zdjęcia")
+        elif self.current_photos == self.questionable_photos:
+            self.photo_display_info_lineEdit.setText("Niepewne zdjęcia")
+        else:
+            self.photo_display_info_lineEdit.setText("Brak zdjęć")  # Do przetestowania
+
+    def _swap_gallery(self):
+        """
+        Handler method for swap_button
+        """
+        if self.current_photos == self.confident_photos:
+            self.current_photos = self.questionable_photos
+        else:
+            self.current_photos = self.confident_photos
+
+        if len(self.current_photos) == 0:
+            self.photo_display.setPixmap(QtGui.QPixmap())
+
+        self.update_gallery_text()
+
+    def update_confident_photos(self, photos):
         """
         Update photos array that gallery uses.
-        :param photos: array of photo paths or directory path to folder with photos
+        :param photos: array of photo paths
         """
         if isinstance(photos, list):
-            self.gallery_array = photos
-        elif os.path.isdir(photos):
-            photos_path = photos
-            self.gallery_array = []
-            for (dir_path, dir_names, filenames) in os.walk(photos_path):
-                for file in filenames:
-                    self.gallery_array.append(os.path.join(dir_path, file))
+            self.confident_photos = photos
+            self.current_photos = self.confident_photos
         else:
-            raise TypeError("To update photos array pass either array of photo paths or directory path")
+            raise TypeError("To update photos array pass array of photo paths")
+
+    def update_questionable_photos(self, photos):
+        """
+        Update photos array that gallery uses.
+        :param photos: array of photo paths
+        """
+        if isinstance(photos, list):
+            self.questionable_photos = photos
+            self.current_photos = self.questionable_photos
+        else:
+            raise TypeError("To update photos array pass array of photo paths")
 
     def get_parameter_1(self):
         """
@@ -257,29 +296,20 @@ class Ui_MainWindow(object):
         """
         return self.save_path_lineEdit.text()
 
-    def set_stats_detected(self, number_of_detected_photos):
+    def update_stats(self):
         """
-        Setter for stats_detected_lineEdit
+        Updating statistics lineEdits
         """
-        self.stats_detected_lineEdit.setText(str(number_of_detected_photos))
+        self.stats_detected_lineEdit.setText(str(len(self.confident_photos)))
+        self.stats_questionable_lineEdit.setText(str(len(self.questionable_photos)))
+        self.stats_total_lineEdit.setText(str(len(self.questionable_photos)+len(self.confident_photos)))
 
-    def set_stats_questionable(self, number_of_questionable_photos):
-        """
-        Setter for stats_questionable_lineEdit
-        """
-        self.stats_questionable_lineEdit.setText(str(number_of_questionable_photos))
-
-    def set_stats_total(self, total_number_of_photos):
-        """
-        Setter for stats_total_lineEdit
-        """
-        self.stats_total_lineEdit.setText(str(total_number_of_photos))
 
     def _marked_with(self):
         """
         Handler for mark_with_button
         """
-        photo = self.gallery_array[self.curr_photo]
+        photo = self.confident_photos[self.curr_photo]
         if photo not in self.marked_with_array:
             self.marked_with_array.append(photo)
 
@@ -287,7 +317,7 @@ class Ui_MainWindow(object):
         """
         Handler for mark_without_button
         """
-        photo = self.gallery_array[self.curr_photo]
+        photo = self.confident_photos[self.curr_photo]
         if photo not in self.marked_without_array:
             self.marked_without_array.append(photo)
 
@@ -295,10 +325,15 @@ class Ui_MainWindow(object):
 if __name__ == "__main__":
     import sys
 
+    photos = []
+    for (dir_path, dir_names, filenames) in os.walk("photos"):
+        for file in filenames:
+            photos.append(os.path.join(dir_path, file))
+
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
-    ui.update_photos_array("photos")
+    ui.update_confident_photos(photos)
     MainWindow.show()
     sys.exit(app.exec_())
