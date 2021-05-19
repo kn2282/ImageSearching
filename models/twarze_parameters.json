@@ -1,0 +1,1 @@
+{"model_name": "twarze", "algorithm_type": "QUARTER_IMAGES", "max_depth": 5, "confidence_level": 0.8, "model_path": "keras_models/twarze_model", "img_size": [70, 70]}

@@ -56,4 +56,5 @@ if __name__ == '__main__':
 
     load_searcher = ImageSearcher.load("models/twarze_parameters.json")
 
-    print(load_searcher.searchImage("photos/cat.jpg", search_all=True))
+#    print(load_searcher.searchImage("photos/cat.jpg", search_all=True))
+    print(load_searcher.searchImage("photos/3.jpg", search_all=True))
