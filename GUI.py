@@ -44,8 +44,6 @@ class Ui_MainWindow(object):
         self.marked_with_array = []
         self.marked_without_array = []
 
-
-
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1116, 710)
@@ -302,8 +300,7 @@ class Ui_MainWindow(object):
         """
         self.stats_detected_lineEdit.setText(str(len(self.confident_photos)))
         self.stats_questionable_lineEdit.setText(str(len(self.questionable_photos)))
-        self.stats_total_lineEdit.setText(str(len(self.questionable_photos)+len(self.confident_photos)))
-
+        self.stats_total_lineEdit.setText(str(len(self.questionable_photos) + len(self.confident_photos)))
 
     def _marked_with(self):
         """
