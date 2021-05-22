@@ -36,6 +36,7 @@ class Ui_MainWindow(object):
         self.mark_with_button = QtWidgets.QPushButton(self.centralwidget)
         self.load_path_lineEdit = QtWidgets.QLineEdit(self.centralwidget)
 
+        # self.centralwidget.setStyleSheet("background-color: lightblue;")
         """ Non GUI-specific variables"""
         self.confident_photos = []
         self.questionable_photos = []
@@ -43,6 +44,8 @@ class Ui_MainWindow(object):
         self.current_photos = None
         self.marked_with_array = []
         self.marked_without_array = []
+
+
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -77,6 +80,10 @@ class Ui_MainWindow(object):
         self.stats_detected_lineEdit.setGeometry(QtCore.QRect(130, 30, 113, 20))
         self.stats_detected_lineEdit.setReadOnly(True)
         self.stats_detected_lineEdit.setObjectName("n_detected_lineEdit")
+        self.model_comboBox.setGeometry(QtCore.QRect(20, 110, 261, 21))
+        self.model_comboBox.setObjectName("model_comboBox")
+        for _ in os.listdir("models"):
+            self.model_comboBox.addItem("")
         self.save_path_lineEdit.setGeometry(QtCore.QRect(780, 610, 241, 41))
         self.save_path_lineEdit.setObjectName("save_path_lineEdit")
         self.photo_display_info_lineEdit.setGeometry(QtCore.QRect(790, 20, 101, 20))
@@ -117,13 +124,6 @@ class Ui_MainWindow(object):
         self.load_path_button.setObjectName("load_path_button")
         self.save_path_button.setGeometry(QtCore.QRect(1030, 610, 51, 41))
         self.save_path_button.setObjectName("save_path_button")
-        self.model_comboBox.setGeometry(QtCore.QRect(20, 110, 261, 21))
-        self.model_comboBox.setObjectName("model_comboBox")
-        filenames = os.listdir("models")
-        for file in filenames:
-            self.model_comboBox.addItem("")
-
-
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1116, 21))
         self.menubar.setObjectName("menubar")
@@ -148,10 +148,8 @@ class Ui_MainWindow(object):
         self.stats_total_lineEdit.setText(_translate("MainWindow", "-"))
         self.stats_questionable_lineEdit.setText(_translate("MainWindow", "-"))
         self.stats_detected_lineEdit.setText(_translate("MainWindow", "-"))
-        self.model_comboBox.setItemText(0, _translate("MainWindow", "Wybierz model"))
-        self.model_comboBox.setItemText(1, _translate("MainWindow", "Twarze"))
-        self.model_comboBox.setItemText(2, _translate("MainWindow", "Samochody"))
-        self.model_comboBox.setItemText(3, _translate("MainWindow", "Rowery"))
+        for i, file in enumerate(os.listdir("models")):
+            self.model_comboBox.setItemText(i, _translate("MainWindow", file))
         self.save_path_lineEdit.setText(_translate("MainWindow", "C:\\Users\\Ja\\Desktop\\SelectedFacesGallery"))
         self.photo_display_info_lineEdit.setText(_translate("MainWindow", "Podgląd zdjęcia"))
         self.next_button.setText(_translate("MainWindow", "Następne"))
@@ -167,11 +165,13 @@ class Ui_MainWindow(object):
         self.load_path_button.setText(_translate("MainWindow", "..."))
         self.save_path_button.setText(_translate("MainWindow", "..."))
 
+        # self.save_path_button.setStyleSheet("background-color : lightblue")
+
         filenames = os.listdir("models")
         for i, file in enumerate(filenames):
             self.model_comboBox.setItemText(i, _translate("MainWindow", file))
 
-        self.save_path_button.setStyleSheet("background-color : lightgreen")
+        # self.save_path_button.setStyleSheet("background-color : lightgreen")
         self.next_button.clicked.connect(self._next_photo)
         self.prev_button.clicked.connect(self._prev_photo)
         self.save_button.clicked.connect(self._save_photos_to_dir)
