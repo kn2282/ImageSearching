@@ -183,8 +183,7 @@ class Ui_MainWindow(object):
         Saves to currently written path in "Save Path" lineEdit field.
         """
         save_path = self.save_path_lineEdit.text()
-        if not os.path.exists(
-                save_path):
+        if not os.path.exists(save_path):
             os.makedirs(save_path)
         for photo in self.confident_photos:
             folder_path = os.path.join(save_path, os.path.basename(photo))

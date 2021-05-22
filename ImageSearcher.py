@@ -100,26 +100,24 @@ class ImageSearcher:
         self._confidence_level = confidence_level
         self.model_name = model_name
 
-    def searchImage(self, path, return_place: bool=False, search_all:bool=False):
+    def searchImage(self, path, return_confidence=True):
         im: Image.Image = Image.open(path)
         im_size = im.size
         found = []
+        confidence = 0.0
         for xs, ys in self._algorithm.get_algorithm(im_size):
             im_resized = im.crop((int(im_size[0]*xs[0]), int(im_size[1]*ys[0]), int(im_size[1]*ys[1]), int(im_size[0]*xs[1])))
-            if self._model.predict(im_resized) > self._confidence_level:
-                if search_all:
-                    found.append((xs, ys))
-                elif return_place:
-                    return [(xs, ys)]
-                else:
-                    return True
+            conf = self._model.predict(im_resized)
+            if conf > self._confidence_level:
+                if confidence < conf and return_confidence:
+                    confidence = conf
+                found.append((xs, ys))
 
-        if search_all or return_place:
-            return found
+        if return_confidence:
+            return found, confidence
         else:
-            return False
+            return found
 
-    pass
 
     def save(self):
         parameters_dict = dict()
