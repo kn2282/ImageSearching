@@ -5,9 +5,7 @@ import SetSearcher
 
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-
+from SetSearcher import SearchSet
 
 if __name__ == '__main__':
     # model = ModelDetector((70, 70), layer_factors=[0.7])
@@ -54,7 +52,12 @@ if __name__ == '__main__':
     #
     # searcher.save()
 
-    load_searcher = ImageSearcher.load("models/twarze_parameters.json")
+    # load_searcher = ImageSearcher.load("models/twarze_parameters.json")
 
 #    print(load_searcher.searchImage("photos/cat.jpg", search_all=True))
-    print(load_searcher.searchImage("photos/3.jpg", search_all=True))
+#    print(load_searcher.searchImage("photos/3.jpg", search_all=True))
+
+    dir_with, dir_questionable, dir_without = SearchSet("photos", "models/twarze_parameters.json")
+    print(repr(dir_with))
+    print(dir_questionable)
+    print(dir_without)

@@ -27,12 +27,6 @@ class SearchAlgorithm:
         :type max_depth: max depth of searchimg inside picture.
          Bigger depth -> algorithm searches to smaller pice of picture
         """
-        # def _prepare(n):
-        #     return {
-        #     'n_pictures_in_depth': [2 ** i for i in range(max_depth + 1)],
-        #     'prop_divider_func': lambda x: n / (x + 3),
-        #     'pic_shift': 1 / n
-        #     }
 
         self.max_depth = max_depth
         self.model_input_prop = model_input_prop

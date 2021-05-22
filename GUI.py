@@ -77,12 +77,6 @@ class Ui_MainWindow(object):
         self.stats_detected_lineEdit.setGeometry(QtCore.QRect(130, 30, 113, 20))
         self.stats_detected_lineEdit.setReadOnly(True)
         self.stats_detected_lineEdit.setObjectName("n_detected_lineEdit")
-        self.model_comboBox.setGeometry(QtCore.QRect(20, 110, 261, 21))
-        self.model_comboBox.setObjectName("model_comboBox")
-        self.model_comboBox.addItem("")
-        self.model_comboBox.addItem("")
-        self.model_comboBox.addItem("")
-        self.model_comboBox.addItem("")
         self.save_path_lineEdit.setGeometry(QtCore.QRect(780, 610, 241, 41))
         self.save_path_lineEdit.setObjectName("save_path_lineEdit")
         self.photo_display_info_lineEdit.setGeometry(QtCore.QRect(790, 20, 101, 20))
@@ -123,6 +117,13 @@ class Ui_MainWindow(object):
         self.load_path_button.setObjectName("load_path_button")
         self.save_path_button.setGeometry(QtCore.QRect(1030, 610, 51, 41))
         self.save_path_button.setObjectName("save_path_button")
+        self.model_comboBox.setGeometry(QtCore.QRect(20, 110, 261, 21))
+        self.model_comboBox.setObjectName("model_comboBox")
+        filenames = os.listdir("models")
+        for file in filenames:
+            self.model_comboBox.addItem("")
+
+
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1116, 21))
         self.menubar.setObjectName("menubar")
@@ -166,6 +167,11 @@ class Ui_MainWindow(object):
         self.load_path_button.setText(_translate("MainWindow", "..."))
         self.save_path_button.setText(_translate("MainWindow", "..."))
 
+        filenames = os.listdir("models")
+        for i, file in enumerate(filenames):
+            self.model_comboBox.setItemText(i, _translate("MainWindow", file))
+
+        self.save_path_button.setStyleSheet("background-color : lightgreen")
         self.next_button.clicked.connect(self._next_photo)
         self.prev_button.clicked.connect(self._prev_photo)
         self.save_button.clicked.connect(self._save_photos_to_dir)

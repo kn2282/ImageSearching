@@ -1,10 +1,11 @@
 from ImageSearcher import ImageSearcher, SearchAlgorithm, AlgorithmType
-
+import os, json
 
 def SearchSet(photos_path, parameters_path, search_alg=None, max_depth=None, alg_type=None, confidence_level=None, sure_level=None):
     searcher = ImageSearcher.load(path=parameters_path, search_alg=search_alg, max_depth=max_depth, alg_type=alg_type, confidence_level=confidence_level)
 
     dir_with = []
+    dir_questionable = []
     dir_without = []
 
     photos = []
@@ -28,6 +29,6 @@ def SearchSet(photos_path, parameters_path, search_alg=None, max_depth=None, alg
         elif sure_level > confidence > confidence_level:
             dir_questionable += [image]
         else:
-            dir_without += image
+            dir_without += [image]
 
     return dir_with, dir_questionable, dir_without
