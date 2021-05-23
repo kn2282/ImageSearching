@@ -6,58 +6,29 @@ import SetSearcher
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 from SetSearcher import SearchSet
+import sys
+from PyQt5 import QtWidgets
 
-if __name__ == '__main__':
-    # model = ModelDetector((70, 70), layer_factors=[0.7])
-    #
-    # train_images = []
-    #
-    # dir_with = "dataset/faces_dataset/65000/"
-    # for file in os.listdir(dir_with)[:-50]:
-    #     train_images.append((dir_with + file, 1.))
-    #
-    # dir_without = "dataset/randoms/no_cars_and_faces/"
-    # for file in os.listdir(dir_without)[:-80]:
-    #     train_images.append((dir_without + file, 0.))
-    #
-    # model.load_train_images(train_images)
-    #
-    # test_images = []
-    #
-    # for file in os.listdir(dir_with)[-50:]:
-    #     test_images.append((dir_with + file, 1.))
-    #
-    # for file in os.listdir(dir_without)[-80:]:
-    #     test_images.append((dir_without + file, 0.))
-    #
-    # model.load_accuracy_images(test_images)
-    #
-    # model.train(epochs=10)
-    # model.check_accuracy()
-    #
-    # # print(model.predict("dataset/faces_dataset/65000/65984.png"))
-    # # print(model.predict("dataset/faces_dataset/65000/65992.png"))
-    # # print(model.predict("dataset/faces_dataset/65000/65996.png"))
-    # # print(model.predict("dataset/randoms/no_cars_and_faces/000000070048.jpg"))
-    # # print(model.predict("dataset/randoms/no_cars_and_faces/000000037751.jpg"))
-    # # print(model.predict("dataset/randoms/no_cars_and_faces/000000043581.jpg"))
-    #
-    # search_alg = SearchAlgorithm(
-    #     AlgorithmType.QUARTER_IMAGES,
-    #     1,
-    #     4
-    # )
-    #
-    # searcher = ImageSearcher(model, search_alg, 0.92, 'twarze')
-    #
-    # searcher.save()
+if __name__ == "__main__":
 
-    # load_searcher = ImageSearcher.load("models/twarze_parameters.json")
+    photos = []
+    for (dir_path, dir_names, filenames) in os.walk("photos"):
+        for file in filenames:
+            photos.append(os.path.join(dir_path, file))
 
-#    print(load_searcher.searchImage("photos/cat.jpg", search_all=True))
-#    print(load_searcher.searchImage("photos/3.jpg", search_all=True))
+    app = QtWidgets.QApplication(sys.argv)
+    MainWindow = QtWidgets.QMainWindow()
+    ui = Ui_MainWindow(MainWindow)
+    ui.setupUi(MainWindow)
 
-    dir_with, dir_questionable, dir_without = SearchSet("photos", "models/twarze_parameters.json")
-    print(repr(dir_with))
-    print(dir_questionable)
-    print(dir_without)
+    ui.update_confident_photos(photos)
+
+
+    MainWindow.show()
+
+
+
+
+    sys.exit(app.exec_())
+
+

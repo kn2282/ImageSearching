@@ -323,19 +323,34 @@ class Ui_MainWindow(object):
         if photo not in self.marked_without_array:
             self.marked_without_array.append(photo)
 
+    def start_search(self):
+        confidence_level = self.get_parameter_1()
+        if confidence_level == '':
+            confidence_level = None
+        else:
+            try:
+                confidence_level = float(confidence_level)
+                if not (0 <= confidence_level <= 1):
+                    raise ValueError()
+            except ValueError:
+                raise ValueError("confidence level must be number from 0 to 1")
 
-if __name__ == "__main__":
-    import sys
+        max_depth = self.get_parameter_2()
+        print(max_depth, type(max_depth))
+        if max_depth == '':
+            max_depth = None
+        else:
+            try:
+                max_depth = int(max_depth)
+                if 0 > max_depth:
+                    raise ValueError()
+            except ValueError:
+                raise ValueError("max depth level must be integer greater then 0")
 
-    photos = []
-    for (dir_path, dir_names, filenames) in os.walk("photos"):
-        for file in filenames:
-            photos.append(os.path.join(dir_path, file))
-
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    ui.update_confident_photos(photos)
-    MainWindow.show()
-    sys.exit(app.exec_())
+        photos_path = self.get_load_path()
+        parameters_path = "models/" + self.get_model_type()
+        alg_type = None  # self.get_alg_type() TODO implement combobox for alg_type: half and quarter
+        dir_with, dir_without = SearchSet(photos_path, parameters_path, max_depth, alg_type, confidence_level)
+        print(dir_without)
+        self.update_confident_photos(dir_with)
+        print(self.confident_photos)

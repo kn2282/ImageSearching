@@ -1,0 +1,1 @@
+{"model_name": "samochody", "algorithm_type": "HALF_IMAGES", "max_depth": 4, "confidence_level": 0.92, "model_path": "keras_models/samochody_model", "img_size": [70, 70]}
