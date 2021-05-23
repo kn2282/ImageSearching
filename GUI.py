@@ -28,12 +28,12 @@ class Ui_MainWindow(object):
         self.save_path_lineEdit = QtWidgets.QLineEdit(self.centralwidget)
         self.model_comboBox = QtWidgets.QComboBox(self.centralwidget)
         self.alg_type_comboBox = QtWidgets.QComboBox(self.centralwidget)
-        self.stats_completed_lineEdit = QtWidgets.QLineEdit(self.stats_groupBox)
-        self.stats_completed_info_lineEdit = QtWidgets.QLineEdit(self.stats_groupBox)
+        # self.stats_completed_lineEdit = QtWidgets.QLineEdit(self.stats_groupBox)
+        # self.stats_completed_info_lineEdit = QtWidgets.QLineEdit(self.stats_groupBox)
         self.stats_detected_lineEdit = QtWidgets.QLineEdit(self.stats_groupBox)
         self.stats_undetected_lineEdit = QtWidgets.QLineEdit(self.stats_groupBox)
-        self.stats_total_lineEdit = QtWidgets.QLineEdit(self.stats_groupBox)
-        self.stats_total_info_lineEdit = QtWidgets.QLineEdit(self.stats_groupBox)
+        # self.stats_total_lineEdit = QtWidgets.QLineEdit(self.stats_groupBox)
+        # self.stats_total_info_lineEdit = QtWidgets.QLineEdit(self.stats_groupBox)
         self.stats_undetected_info_lineEdit = QtWidgets.QLineEdit(self.stats_groupBox)
         self.stats_detected_info_lineEdit = QtWidgets.QLineEdit(self.stats_groupBox)
         self.save_button = QtWidgets.QPushButton(self.centralwidget)
@@ -46,9 +46,9 @@ class Ui_MainWindow(object):
         self.detected_photos = []  # array of absolute paths
         self.undetected_photos = []
         self.curr_photo = 0
-        self.current_photos = None
-        self.completed_no = 0
-        self.total_no = 0
+        self.current_photos = []
+        # self.completed_no = 0
+        # self.total_no = 0
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -73,12 +73,12 @@ class Ui_MainWindow(object):
         self.stats_undetected_info_lineEdit.setGeometry(QtCore.QRect(10, 60, 113, 20))
         self.stats_undetected_info_lineEdit.setReadOnly(True)
         self.stats_undetected_info_lineEdit.setObjectName("n_undetected_info_lineEdit")
-        self.stats_completed_info_lineEdit.setGeometry(QtCore.QRect(10, 120, 113, 20))
-        self.stats_completed_info_lineEdit.setReadOnly(True)
-        self.stats_completed_info_lineEdit.setObjectName("n_completed_info_lineEdit")
-        self.stats_completed_lineEdit.setGeometry(QtCore.QRect(130, 120, 113, 20))
-        self.stats_completed_lineEdit.setReadOnly(True)
-        self.stats_completed_lineEdit.setObjectName("n_completed_lineEdit")
+        # self.stats_completed_info_lineEdit.setGeometry(QtCore.QRect(10, 120, 113, 20))
+        # self.stats_completed_info_lineEdit.setReadOnly(True)
+        # self.stats_completed_info_lineEdit.setObjectName("n_completed_info_lineEdit")
+        # self.stats_completed_lineEdit.setGeometry(QtCore.QRect(130, 120, 113, 20))
+        # self.stats_completed_lineEdit.setReadOnly(True)
+        # self.stats_completed_lineEdit.setObjectName("n_completed_lineEdit")
         self.stats_undetected_lineEdit.setGeometry(QtCore.QRect(130, 60, 113, 20))
         self.stats_undetected_lineEdit.setReadOnly(True)
         self.stats_undetected_lineEdit.setObjectName("n_undetected_lineEdit")
@@ -141,7 +141,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-        QtCore.QTimer.singleShot(1000, self.timer_handler)
+        # QtCore.QTimer.singleShot(1000, self.timer_handler)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -152,8 +152,8 @@ class Ui_MainWindow(object):
         self.stats_groupBox.setTitle(_translate("MainWindow", "Search statistics"))
         self.stats_detected_info_lineEdit.setText(_translate("MainWindow", "Detected no:"))
         self.stats_undetected_info_lineEdit.setText(_translate("MainWindow", "Undetected no:"))
-        self.stats_completed_info_lineEdit.setText(_translate("MainWindow", "Completed:"))
-        self.stats_completed_lineEdit.setText(_translate("MainWindow", "0/n"))
+        # self.stats_completed_info_lineEdit.setText(_translate("MainWindow", "Completed:"))
+        # self.stats_completed_lineEdit.setText(_translate("MainWindow", "0/n"))
         self.stats_undetected_lineEdit.setText(_translate("MainWindow", "-"))
         self.stats_detected_lineEdit.setText(_translate("MainWindow", "-"))
         self.save_path_lineEdit.setText(_translate("MainWindow", "C:\\Users\\Ja\\Desktop\\SelectedFacesGallery"))
@@ -185,8 +185,8 @@ class Ui_MainWindow(object):
         self.update_gallery_text()
         self.update_stats()
 
-    def timer_handler(self):
-        self.stats_completed_lineEdit.setText(f"{self.completed_no} of {self.total_no}")
+    # def timer_handler(self):
+    #     self.stats_completed_lineEdit.setText(f"{self.completed_no} of {self.total_no}")
 
     def _start_algorithm(self):
         self.start_search()
@@ -243,9 +243,9 @@ class Ui_MainWindow(object):
         """
         Updates lineEdit over gallery
         """
-        if self.current_photos == self.detected_photos:
+        if self.current_photos is self.detected_photos:
             self.photo_display_info_lineEdit.setText("Detected photos")
-        elif self.current_photos == self.undetected_photos:
+        elif self.current_photos is self.undetected_photos:
             self.photo_display_info_lineEdit.setText("Undetected photos")
         else:
             self.photo_display_info_lineEdit.setText("No photos")
@@ -254,7 +254,7 @@ class Ui_MainWindow(object):
         """
         Handler method for swap_button
         """
-        if self.current_photos == self.detected_photos:
+        if self.current_photos is self.detected_photos:
             self.current_photos = self.undetected_photos
         else:
             self.current_photos = self.detected_photos
@@ -306,12 +306,12 @@ class Ui_MainWindow(object):
         """
         return self.alg_type_comboBox.currentText()
 
-    def update_completed_no(self, completed_no, total_no):
-        """
-        Updates stats_completed_lineEdit
-        """
-        self.completed_no = completed_no
-        self.total_no = total_no
+    # def update_completed_no(self, completed_no, total_no):
+    #     """
+    #     Updates stats_completed_lineEdit
+    #     """
+    #     self.completed_no = completed_no
+    #     self.total_no = total_no
 
     def update_stats(self):
         """
@@ -387,5 +387,5 @@ class Ui_MainWindow(object):
         parameters_path = "models/" + self.get_model_type()
         alg_type = self.get_alg_type()
 
-        dir_with, dir_without = SearchSet(photos_path, parameters_path, max_depth, alg_type, confidence_level, self.update_completed_no)
+        dir_with, dir_without = SearchSet(photos_path, parameters_path, max_depth, alg_type, confidence_level)
         self.update_after_search(dir_with, dir_without)
