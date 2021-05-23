@@ -28,6 +28,8 @@ class Ui_MainWindow(object):
         self.save_path_lineEdit = QtWidgets.QLineEdit(self.centralwidget)
         self.model_comboBox = QtWidgets.QComboBox(self.centralwidget)
         self.alg_type_comboBox = QtWidgets.QComboBox(self.centralwidget)
+        self.stats_completed_lineEdit = QtWidgets.QLineEdit(self.stats_groupBox)
+        self.stats_completed_info_lineEdit = QtWidgets.QLineEdit(self.stats_groupBox)
         self.stats_detected_lineEdit = QtWidgets.QLineEdit(self.stats_groupBox)
         self.stats_undetected_lineEdit = QtWidgets.QLineEdit(self.stats_groupBox)
         self.stats_total_lineEdit = QtWidgets.QLineEdit(self.stats_groupBox)
@@ -45,8 +47,8 @@ class Ui_MainWindow(object):
         self.undetected_photos = []
         self.curr_photo = 0
         self.current_photos = None
-        self.marked_with_array = []
-        self.marked_without_array = []
+        self.completed_no = 0
+        self.total_no = 0
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -61,7 +63,7 @@ class Ui_MainWindow(object):
         self.mark_without_button.setObjectName("mark_without_button")
         self.start_button.setGeometry(QtCore.QRect(370, 50, 111, 41))
         self.start_button.setObjectName("start_button")
-        self.save_button.setGeometry(QtCore.QRect(600, 610, 81, 41))
+        self.save_button.setGeometry(QtCore.QRect(580, 610, 81, 41))
         self.save_button.setObjectName("save_button")
         self.stats_groupBox.setGeometry(QtCore.QRect(20, 400, 261, 251))
         self.stats_groupBox.setObjectName("stats_groupBox")
@@ -71,15 +73,15 @@ class Ui_MainWindow(object):
         self.stats_undetected_info_lineEdit.setGeometry(QtCore.QRect(10, 60, 113, 20))
         self.stats_undetected_info_lineEdit.setReadOnly(True)
         self.stats_undetected_info_lineEdit.setObjectName("n_undetected_info_lineEdit")
-        self.stats_total_info_lineEdit.setGeometry(QtCore.QRect(10, 90, 113, 20))
-        self.stats_total_info_lineEdit.setReadOnly(True)
-        self.stats_total_info_lineEdit.setObjectName("n_total_info_lineEdit")
-        self.stats_total_lineEdit.setGeometry(QtCore.QRect(130, 90, 113, 20))
-        self.stats_total_lineEdit.setReadOnly(True)
-        self.stats_total_lineEdit.setObjectName("n_total_lineEdit")
+        self.stats_completed_info_lineEdit.setGeometry(QtCore.QRect(10, 120, 113, 20))
+        self.stats_completed_info_lineEdit.setReadOnly(True)
+        self.stats_completed_info_lineEdit.setObjectName("n_completed_info_lineEdit")
+        self.stats_completed_lineEdit.setGeometry(QtCore.QRect(130, 120, 113, 20))
+        self.stats_completed_lineEdit.setReadOnly(True)
+        self.stats_completed_lineEdit.setObjectName("n_completed_lineEdit")
         self.stats_undetected_lineEdit.setGeometry(QtCore.QRect(130, 60, 113, 20))
         self.stats_undetected_lineEdit.setReadOnly(True)
-        self.stats_undetected_lineEdit.setObjectName("n_questionable_lineEdit")
+        self.stats_undetected_lineEdit.setObjectName("n_undetected_lineEdit")
         self.stats_detected_lineEdit.setGeometry(QtCore.QRect(130, 30, 113, 20))
         self.stats_detected_lineEdit.setReadOnly(True)
         self.stats_detected_lineEdit.setObjectName("n_detected_lineEdit")
@@ -92,9 +94,9 @@ class Ui_MainWindow(object):
         self.next_button.setObjectName("next_button")
         self.prev_button.setGeometry(QtCore.QRect(690, 440, 151, 41))
         self.prev_button.setObjectName("prev_button")
-        self.swap_button.setGeometry(QtCore.QRect(600, 440, 81, 41))
+        self.swap_button.setGeometry(QtCore.QRect(580, 440, 101, 41))
         self.swap_button.setObjectName("swap_button")
-        self.photo_display.setGeometry(QtCore.QRect(590, 50, 491, 381))
+        self.photo_display.setGeometry(QtCore.QRect(580, 50, 491, 381))
         self.photo_display.setText("")
         self.photo_display.setPixmap(QtGui.QPixmap())
         self.photo_display.setScaledContents(True)
@@ -123,8 +125,8 @@ class Ui_MainWindow(object):
         self.save_path_button.setObjectName("save_path_button")
         self.alg_type_comboBox.setGeometry(QtCore.QRect(20, 275, 261, 21))
         self.alg_type_comboBox.setObjectName("alg_type_comboBox")
-        self.alg_type_comboBox.addItem("HALF.IMAGES")
-        self.alg_type_comboBox.addItem("QUARTER.IMAGES")
+        self.alg_type_comboBox.addItem("HALF_IMAGES")
+        self.alg_type_comboBox.addItem("QUARTER_IMAGES")
         self.model_comboBox.setGeometry(QtCore.QRect(20, 110, 261, 21))
         self.model_comboBox.setObjectName("model_comboBox")
         for filename in os.listdir("models"):
@@ -139,6 +141,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        QtCore.QTimer.singleShot(1000, self.timer_handler)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -149,8 +152,8 @@ class Ui_MainWindow(object):
         self.stats_groupBox.setTitle(_translate("MainWindow", "Search statistics"))
         self.stats_detected_info_lineEdit.setText(_translate("MainWindow", "Detected no:"))
         self.stats_undetected_info_lineEdit.setText(_translate("MainWindow", "Undetected no:"))
-        self.stats_total_info_lineEdit.setText(_translate("MainWindow", "All photos no:"))
-        self.stats_total_lineEdit.setText(_translate("MainWindow", "-"))
+        self.stats_completed_info_lineEdit.setText(_translate("MainWindow", "Completed:"))
+        self.stats_completed_lineEdit.setText(_translate("MainWindow", "0/n"))
         self.stats_undetected_lineEdit.setText(_translate("MainWindow", "-"))
         self.stats_detected_lineEdit.setText(_translate("MainWindow", "-"))
         self.save_path_lineEdit.setText(_translate("MainWindow", "C:\\Users\\Ja\\Desktop\\SelectedFacesGallery"))
@@ -182,6 +185,9 @@ class Ui_MainWindow(object):
         self.update_gallery_text()
         self.update_stats()
 
+    def timer_handler(self):
+        self.stats_completed_lineEdit.setText(f"{self.completed_no} of {self.total_no}")
+
     def _start_algorithm(self):
         self.start_search()
 
@@ -193,7 +199,7 @@ class Ui_MainWindow(object):
         save_path = self.save_path_lineEdit.text()
         if not os.path.exists(save_path):
             os.makedirs(save_path)
-        for photo in self.detected_photos:
+        for photo in self.current_photos:
             folder_path = os.path.join(save_path, os.path.basename(photo))
             shutil.copyfile(photo, folder_path)
 
@@ -242,7 +248,7 @@ class Ui_MainWindow(object):
         elif self.current_photos == self.undetected_photos:
             self.photo_display_info_lineEdit.setText("Undetected photos")
         else:
-            self.photo_display_info_lineEdit.setText("No photos")  # Do przetestowania
+            self.photo_display_info_lineEdit.setText("No photos")
 
     def _swap_gallery(self):
         """
@@ -257,28 +263,18 @@ class Ui_MainWindow(object):
             self.photo_display.setPixmap(QtGui.QPixmap())
 
         self.update_gallery_text()
+        self._next_photo()
 
-    def update_confident_photos(self, photos):
-        """
-        Update photos array that gallery uses.
-        :param photos: array of photo paths
-        """
-        if isinstance(photos, list):
-            self.detected_photos = photos
-            self.current_photos = self.detected_photos
-        else:
-            raise TypeError("To update photos array pass array of photo paths")
-
-    def update_questionable_photos(self, photos):
-        """
-        Update photos array that gallery uses.
-        :param photos: array of photo paths
-        """
-        if isinstance(photos, list):
-            self.undetected_photos = photos
-            self.current_photos = self.undetected_photos
-        else:
-            raise TypeError("To update photos array pass array of photo paths")
+    # def update_photos(self, photo_array: [], photos):
+    #     """
+    #     Update photos array that gallery uses.
+    #     :param photo_array: either [self.detected_photos] or [self.undetected_photos]
+    #     :param photos: array of photo paths to overwrite photo_array
+    #     """
+    #     if isinstance(photos, list):
+    #         photo_array = photos
+    #     else:
+    #         raise TypeError("To update photos array pass array of photo paths")
 
     def get_confidence(self):
         """
@@ -310,29 +306,59 @@ class Ui_MainWindow(object):
         """
         return self.alg_type_comboBox.currentText()
 
+    def update_completed_no(self, completed_no, total_no):
+        """
+        Updates stats_completed_lineEdit
+        """
+        self.completed_no = completed_no
+        self.total_no = total_no
+
     def update_stats(self):
         """
-        Updating statistics lineEdits
+        Updates statistics lineEdits
         """
         self.stats_detected_lineEdit.setText(str(len(self.detected_photos)))
         self.stats_undetected_lineEdit.setText(str(len(self.undetected_photos)))
-        self.stats_total_lineEdit.setText(str(len(self.undetected_photos) + len(self.detected_photos)))
+
+    def update_after_search(self, detected, undetected):
+        """
+        Updates GUI gallery, stats, lineEdits
+        :param detected: array of detected photo paths
+        :param undetected: array of undetected photo paths
+        """
+        # self.update_detected_photos(detected)
+        # self.update_undetected_photos(undetected)
+        self.detected_photos = detected
+        self.undetected_photos = undetected
+        self.update_stats()
+        self.current_photos = self.detected_photos
+        self.update_gallery_text()
+        self.curr_photo = 0
+        self._next_photo()
 
     def _marked_with(self):
         """
         Handler for mark_with_button
         """
-        photo = self.detected_photos[self.curr_photo]
-        if photo not in self.marked_with_array:
-            self.marked_with_array.append(photo)
+        if len(self.current_photos) == 0:
+            return
+        photo = self.current_photos[self.curr_photo]
+        if photo not in self.detected_photos:
+            self.detected_photos.append(photo)
+            self.undetected_photos.remove(photo)
+            self._next_photo()
 
     def _marked_without(self):
         """
         Handler for mark_without_button
         """
-        photo = self.detected_photos[self.curr_photo]
-        if photo not in self.marked_without_array:
-            self.marked_without_array.append(photo)
+        if len(self.current_photos) == 0:
+            return
+        photo = self.current_photos[self.curr_photo]
+        if photo not in self.undetected_photos:
+            self.undetected_photos.append(photo)
+            self.detected_photos.remove(photo)
+            self._next_photo()
 
     def start_search(self):
         confidence_level = self.get_confidence()
@@ -347,7 +373,6 @@ class Ui_MainWindow(object):
                 raise ValueError("confidence level must be number from 0 to 1")
 
         max_depth = self.get_max_depth()
-        print(max_depth, type(max_depth))
         if max_depth == '':
             max_depth = None
         else:
@@ -361,10 +386,6 @@ class Ui_MainWindow(object):
         photos_path = self.get_load_path()
         parameters_path = "models/" + self.get_model_type()
         alg_type = self.get_alg_type()
-        dir_with, dir_without = SearchSet(photos_path, parameters_path, max_depth, alg_type, confidence_level)
-        print(dir_without)
-        self.update_confident_photos(dir_with)
-        self.update_stats()
-        print(self.detected_photos)
 
-
+        dir_with, dir_without = SearchSet(photos_path, parameters_path, max_depth, alg_type, confidence_level, self.update_completed_no)
+        self.update_after_search(dir_with, dir_without)

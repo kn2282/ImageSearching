@@ -22,7 +22,7 @@ if __name__ == "__main__":
     ui = Ui_MainWindow(MainWindow)
     ui.setupUi(MainWindow)
 
-    ui.update_confident_photos(photos)
+    #    ui.update_detected_photos(photos)
 
     MainWindow.show()
 

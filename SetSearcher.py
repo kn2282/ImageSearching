@@ -1,5 +1,6 @@
 from ImageSearcher import ImageSearcher, SearchAlgorithm, AlgorithmType
-import os, json
+import os
+import json
 
 def SearchSet(photos_path, parameters_path, max_depth=None, alg_type=None, confidence_level=None, progress_func=None):
     searcher = ImageSearcher.load(path=parameters_path, max_depth=max_depth, alg_type=alg_type, confidence_level=confidence_level)
