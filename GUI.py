@@ -2,9 +2,11 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 import os
 import shutil
 
+from SetSearcher import SearchSet
+
 
 class Ui_MainWindow(object):
-    def __init__(self):
+    def __init__(self, MainWindow):
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -45,8 +47,6 @@ class Ui_MainWindow(object):
         self.marked_with_array = []
         self.marked_without_array = []
 
-
-
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1116, 710)
@@ -80,10 +80,6 @@ class Ui_MainWindow(object):
         self.stats_detected_lineEdit.setGeometry(QtCore.QRect(130, 30, 113, 20))
         self.stats_detected_lineEdit.setReadOnly(True)
         self.stats_detected_lineEdit.setObjectName("n_detected_lineEdit")
-        self.model_comboBox.setGeometry(QtCore.QRect(20, 110, 261, 21))
-        self.model_comboBox.setObjectName("model_comboBox")
-        for _ in os.listdir("models"):
-            self.model_comboBox.addItem("")
         self.save_path_lineEdit.setGeometry(QtCore.QRect(780, 610, 241, 41))
         self.save_path_lineEdit.setObjectName("save_path_lineEdit")
         self.photo_display_info_lineEdit.setGeometry(QtCore.QRect(790, 20, 101, 20))
@@ -124,6 +120,11 @@ class Ui_MainWindow(object):
         self.load_path_button.setObjectName("load_path_button")
         self.save_path_button.setGeometry(QtCore.QRect(1030, 610, 51, 41))
         self.save_path_button.setObjectName("save_path_button")
+        self.model_comboBox.setGeometry(QtCore.QRect(20, 110, 261, 21))
+        self.model_comboBox.setObjectName("model_comboBox")
+        for _ in os.listdir("models"):
+            self.model_comboBox.addItem("")
+
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1116, 21))
         self.menubar.setObjectName("menubar")
@@ -148,8 +149,6 @@ class Ui_MainWindow(object):
         self.stats_total_lineEdit.setText(_translate("MainWindow", "-"))
         self.stats_questionable_lineEdit.setText(_translate("MainWindow", "-"))
         self.stats_detected_lineEdit.setText(_translate("MainWindow", "-"))
-        for i, file in enumerate(os.listdir("models")):
-            self.model_comboBox.setItemText(i, _translate("MainWindow", file))
         self.save_path_lineEdit.setText(_translate("MainWindow", "C:\\Users\\Ja\\Desktop\\SelectedFacesGallery"))
         self.photo_display_info_lineEdit.setText(_translate("MainWindow", "Podgląd zdjęcia"))
         self.next_button.setText(_translate("MainWindow", "Następne"))
@@ -158,15 +157,14 @@ class Ui_MainWindow(object):
         self.mark_without_button.setText(_translate("MainWindow", "Oznacz jako bez elementu"))
         self.load_path_info_lineEdit.setText(_translate("MainWindow", "Ścieżka do folderu ze zdjęciami:"))
         self.save_info_lineEdit.setText(_translate("MainWindow", "Ścieżka do zapisania znalezionych zdjęć:"))
-        self.param_1_lineEdit.setText(_translate("MainWindow", "80"))
-        self.param_2_lineEdit.setText(_translate("MainWindow", "20"))
+        self.param_1_lineEdit.setText(_translate("MainWindow", "0.8"))
+        self.param_2_lineEdit.setText(_translate("MainWindow", "4"))
         self.param_1_info_lineEdit.setText(_translate("MainWindow", "Parametr 1 (%):"))
         self.param_2_info_lineEdit.setText(_translate("MainWindow", "Parametr 2:"))
         self.load_path_button.setText(_translate("MainWindow", "..."))
         self.save_path_button.setText(_translate("MainWindow", "..."))
 
         # self.save_path_button.setStyleSheet("background-color : lightblue")
-
         filenames = os.listdir("models")
         for i, file in enumerate(filenames):
             self.model_comboBox.setItemText(i, _translate("MainWindow", file))
@@ -180,8 +178,12 @@ class Ui_MainWindow(object):
         self.mark_with_button.clicked.connect(self._marked_with)
         self.mark_without_button.clicked.connect(self._marked_without)
         self.swap_button.clicked.connect(self._swap_gallery)
+        self.start_button.clicked.connect(self._start_algorithm)
         self.update_gallery_text()
         self.update_stats()
+
+    def _start_algorithm(self):
+        self.start_search()
 
     def _save_photos_to_dir(self):
         """
@@ -199,14 +201,14 @@ class Ui_MainWindow(object):
         """
         Method to choose starting dataset using FileDialog. Updates load_path_info_lineEdit
         """
-        path = str(QtWidgets.QFileDialog.getExistingDirectory(self.centralwidget, 'Select Folder'))
+        path = str(QtWidgets.QFileDialog.getExistingDirectory(self.centralwidget, 'Select load Folder'))
         self.load_path_lineEdit.setText(path)
 
     def _set_save_path(self):
         """
         Method to choose writing location for selected photos using FileDialog. Updates "save_path" lineEdit
         """
-        path = str(QtWidgets.QFileDialog.getExistingDirectory(self.centralwidget, 'Select Folder'))
+        path = str(QtWidgets.QFileDialog.getExistingDirectory(self.centralwidget, 'Select save Folder'))
         self.save_path_lineEdit.setText(path)
 
     def _next_photo(self):
@@ -232,6 +234,9 @@ class Ui_MainWindow(object):
         self.photo_display.setPixmap(QtGui.QPixmap(photo))
 
     def update_gallery_text(self):
+        """
+        Updates lineEdit over gallery
+        """
         if self.current_photos == self.confident_photos:
             self.photo_display_info_lineEdit.setText("Pewne zdjęcia")
         elif self.current_photos == self.questionable_photos:
@@ -285,7 +290,7 @@ class Ui_MainWindow(object):
         """
         Getter for parameter 2
         """
-        return self.param_2_info_lineEdit.text()
+        return self.param_2_lineEdit.text()
 
     def get_model_type(self):
         """
@@ -297,7 +302,7 @@ class Ui_MainWindow(object):
         """
         Getter for directory path with photos to use in algorithm
         """
-        return self.save_path_lineEdit.text()
+        return self.load_path_lineEdit.text()
 
     def update_stats(self):
         """
