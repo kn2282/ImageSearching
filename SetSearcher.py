@@ -19,7 +19,7 @@ def SearchSet(photos_path, parameters_path, max_depth=None, alg_type=None, confi
 
     for image in photos:
         _, confidence = searcher.searchImage(image)
-        print(image)
+
         if confidence > confidence_level:
             dir_with += [image]
         else:

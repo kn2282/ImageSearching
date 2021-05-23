@@ -1,3 +1,4 @@
+from GUI import Ui_MainWindow
 from ModelDetector import ModelDetector
 import os
 from ImageSearcher import ImageSearcher, SearchAlgorithm, AlgorithmType
