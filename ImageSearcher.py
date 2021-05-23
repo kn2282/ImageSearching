@@ -148,6 +148,8 @@ class ImageSearcher:
 
             if alg_type is None:
                 alg_type = ImageSearcher.__name_to_type(parameters_dict["algorithm_type"])
+            elif isinstance(alg_type, type("")):
+                alg_type = ImageSearcher.__name_to_type(alg_type)
 
             if search_alg is None:
                 search_alg = SearchAlgorithm(

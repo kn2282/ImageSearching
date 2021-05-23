@@ -24,12 +24,6 @@ if __name__ == "__main__":
 
     ui.update_confident_photos(photos)
 
-
     MainWindow.show()
 
-
-
-
     sys.exit(app.exec_())
-
-

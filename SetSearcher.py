@@ -1,7 +1,7 @@
 from ImageSearcher import ImageSearcher, SearchAlgorithm, AlgorithmType
 import os, json
 
-def SearchSet(photos_path, parameters_path, max_depth=None, alg_type=None, confidence_level=None):
+def SearchSet(photos_path, parameters_path, max_depth=None, alg_type=None, confidence_level=None, progress_func=None):
     searcher = ImageSearcher.load(path=parameters_path, max_depth=max_depth, alg_type=alg_type, confidence_level=confidence_level)
 
     dir_with = []
@@ -17,8 +17,11 @@ def SearchSet(photos_path, parameters_path, max_depth=None, alg_type=None, confi
         with open(parameters_path, "r") as json_file:
             confidence_level = json.load(json_file)["confidence_level"]
 
-    for image in photos:
+    for i, image in enumerate(photos):
+        print(image)
         _, confidence = searcher.searchImage(image)
+        if progress_func is not None:
+            progress_func(i, len(photos))
 
         if confidence > confidence_level:
             dir_with += [image]
