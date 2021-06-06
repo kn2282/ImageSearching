@@ -2,7 +2,15 @@ from PIL import Image
 import tensorflow as tf
 
 
-def image2table(im: Image.Image, im_size: (int, int)):
+def image2table(im: Image.Image, im_size: (int, int)) -> []:
+    """
+    Function used to parse image into neural network.
+    (changing image into proper format)
+
+    :param im: image being transforming to table.
+    :param im_size: target table size.
+    :return: table of :param im_size size.
+    """
     im_resized: Image.Image = im.resize(im_size)
     table_image = []
     if isinstance(im_resized.getpixel((0, 0)), int):
@@ -21,15 +29,24 @@ def image2table(im: Image.Image, im_size: (int, int)):
     return table_image
 
 
-def index_highest(table):
-    highest_v = max(table[0])
-    for i in range(len(table[0])):
-        if highest_v == table[0][i]:
-            return i
+
 
 
 class ModelDetector:
+    """
+    Class used to manage neural network:
+    train, test, save and predict answers.
+    """
     def __init__(self, img_size: () = (20, 20), layer_factors=None, load_model=None):
+        """
+        Model Detector can be initiated for new neural network (load_model is None)
+        or can load existing one (load_model is pair of (path_to_model, model_size)).
+
+        :param img_size: size of input into neural network.
+        :param layer_factors: sizes of next layers in neural network
+            (must be given in fractals and will be multiply by size of input).
+        :param load_model: pair of (path_to_model, model_size) or None if creating new one.
+        """
         if load_model is not None:
             self.model = tf.keras.models.load_model(load_model[0])
             self._img_size = load_model[1]
