@@ -2,7 +2,18 @@ from .ImageSearcher import ImageSearcher
 import os
 import json
 
-def SearchSet(photos_path, parameters_path, max_depth=None, alg_type=None, confidence_level=None, progress_func=None):
+
+def SearchSet(photos_path, parameters_path, max_depth=None, alg_type=None, confidence_level=None):
+    """
+    Function that takes photos and parameters as input and returns two arrays of photo paths. One contains
+    selected images by algorithm and the second contains the rest.
+    :param photos_path: array of photo paths for algorithm
+    :param parameters_path: parameters for the load function
+    :param max_depth: variable passed to ImageSearcher, the bigger the more precisely an image is searched
+    :param alg_type: HALF_IMAGES or QUARTER_IMAGES
+    :param confidence_level: acceptance rate of an image
+    :return: array of selected and array of not selected images (arrays of absolute paths)
+    """
     searcher = ImageSearcher.load(path=parameters_path, max_depth=max_depth, alg_type=alg_type, confidence_level=confidence_level)
 
     dir_with = []
@@ -21,8 +32,6 @@ def SearchSet(photos_path, parameters_path, max_depth=None, alg_type=None, confi
     for i, image in enumerate(photos):
         print(image)
         _, confidence = searcher.searchImage(image)
-        if progress_func is not None:
-            progress_func(i, len(photos))
 
         if confidence > confidence_level:
             dir_with += [image]
